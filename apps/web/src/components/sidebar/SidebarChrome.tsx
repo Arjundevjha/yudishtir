@@ -176,7 +176,7 @@ function SidebarBrand({ onBackdrop }: { onBackdrop: boolean }) {
   );
 }
 
-function SidebarBrandMark({ onBackdrop }: { onBackdrop: boolean }) {
+function SidebarBrandMark({ onBackdrop: _onBackdrop }: { onBackdrop: boolean }) {
   return (
     <span className="inline-flex min-w-0 items-center gap-1.5 text-sm font-bold tracking-tight">
       <svg
@@ -201,14 +201,6 @@ function SidebarBrandMark({ onBackdrop }: { onBackdrop: boolean }) {
         <line x1="14.12" y1="9.88" x2="19.07" y2="4.93" />
       </svg>
       <span className="text-primary font-black uppercase tracking-wider">Yudishtir</span>
-      <span
-        className={cn(
-          "truncate [text-box:trim-both_cap_alphabetic] supports-[text-box:trim-both_cap_alphabetic]:py-1 text-xs font-semibold",
-          onBackdrop ? "text-white/70" : "text-muted-foreground",
-        )}
-      >
-        Fleet
-      </span>
     </span>
   );
 }

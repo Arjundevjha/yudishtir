@@ -63,9 +63,7 @@ const connectUnavailableCommand = Command.make("connect", {
 
 export const makeCli = ({ cloudEnabled = hasCloudPublicConfig } = {}) =>
   Command.make("yudishtir", { ...sharedServerCommandFlags }).pipe(
-    Command.withDescription(
-      "Run Yudishtir in this terminal and open it in your browser. Multi-agent control plane for agy, opencode, codex, and pi.",
-    ),
+    Command.withDescription("Run Yudishtir in this terminal and open it in your browser."),
     Command.withHandler(runDefaultServerCommand),
     Command.withSubcommands([
       Command.make("help").pipe(
