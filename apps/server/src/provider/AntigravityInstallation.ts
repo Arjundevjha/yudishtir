@@ -306,19 +306,51 @@ export const makeAntigravityInstallation = Effect.fn("AntigravityInstallation.ma
     processEnvironment = environment,
   ) {
     if (command.includes("/") || command.includes("\\")) {
-      const resolved = yield* commandPath(command, processEnvironment);
+      let resolved = yield* commandPath(command, processEnvironment);
+      if (resolved !== null && platform === "win32") {
+        const dir = path.dirname(resolved);
+        const files = yield* fs.readDirectory(dir).pipe(Effect.orElseSucceed(() => []));
+        const resolvedBase = path.basename(resolved).toLowerCase();
+        const match = files.find((f) => f.toLowerCase() === resolvedBase);
+        if (match) {
+          resolved = path.join(dir, match);
+        }
+      }
       return resolved === null ? [] : [resolved];
     }
     const pathValue =
       platform === "win32"
         ? Object.entries(processEnvironment).findLast(([key]) => key.toUpperCase() === "PATH")?.[1]
         : processEnvironment.PATH;
+    const homeDir = processEnvironment.HOME ?? environment.HOME ?? "";
+    const extraDirs =
+      platform === "win32"
+        ? []
+        : [
+            homeDir ? `${homeDir}/.local/bin` : "",
+            homeDir ? `${homeDir}/.gemini/bin` : "",
+            "/opt/homebrew/bin",
+            "/usr/local/bin",
+          ].filter(Boolean);
+    const searchDirs = [...(pathValue ?? "").split(platform === "win32" ? ";" : ":"), ...extraDirs];
     const candidates: string[] = [];
-    for (const directory of (pathValue ?? "").split(platform === "win32" ? ";" : ":")) {
+    const seen = new Set<string>();
+    for (const directory of searchDirs) {
       const entry = directory.trim().replace(/^"|"$/gu, "");
-      if (entry.length === 0) continue;
-      const resolved = yield* commandPath(command, { ...processEnvironment, PATH: entry });
-      if (resolved !== null) candidates.push(resolved);
+      if (entry.length === 0 || seen.has(entry)) continue;
+      seen.add(entry);
+      let resolved = yield* commandPath(command, { ...processEnvironment, PATH: entry });
+      if (resolved !== null) {
+        if (platform === "win32") {
+          const files = yield* fs.readDirectory(entry).pipe(Effect.orElseSucceed(() => []));
+          const resolvedBase = path.basename(resolved).toLowerCase();
+          const match = files.find((f) => f.toLowerCase() === resolvedBase);
+          if (match) {
+            resolved = path.join(entry, match);
+          }
+        }
+        if (!candidates.includes(resolved)) candidates.push(resolved);
+      }
     }
     return candidates;
   });
@@ -342,9 +374,26 @@ export const makeAntigravityInstallation = Effect.fn("AntigravityInstallation.ma
         const active = yield* readRecord(activePath, ActiveRelease);
         return yield* completedRelease(active.releaseId);
       }
-      for (const candidate of yield* commandCandidates(names.executable, processEnvironment)) {
-        const selected = yield* fromExternal(candidate, "path");
-        if (selected) return selected;
+      const homeDir = processEnvironment?.HOME ?? environment.HOME ?? "";
+      const searchCommands = [
+        "agy",
+        "antigravity",
+        names.executable,
+        ...(homeDir
+          ? [
+              path.join(homeDir, ".local", "bin", "agy"),
+              path.join(homeDir, ".local", "bin", "antigravity"),
+              path.join(homeDir, ".gemini", "bin", "agy"),
+            ]
+          : []),
+        "/opt/homebrew/bin/agy",
+        "/usr/local/bin/agy",
+      ];
+      for (const cmd of searchCommands) {
+        for (const candidate of yield* commandCandidates(cmd, processEnvironment)) {
+          const selected = yield* fromExternal(candidate, "path");
+          if (selected) return selected;
+        }
       }
       return yield* installationError(
         "resolve",
