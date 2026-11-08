@@ -74,6 +74,18 @@ export function selectOnboardingProvidersByDriver(
 
 // These need no Node/npm and install where provider maintenance recognizes native binaries.
 const NATIVE_INSTALL_COMMANDS = {
+  antigravity: {
+    windows: "npm install -g @google/antigravity",
+    posix: "npm install -g @google/antigravity",
+  },
+  openCode: {
+    windows: "npm install -g opencode",
+    posix: "curl -fsSL https://opencode.ai/install.sh | bash",
+  },
+  pi: {
+    windows: "npm install -g @earendil-works/pi-coding-agent",
+    posix: "npm install -g @earendil-works/pi-coding-agent",
+  },
   claudeAgent: {
     windows: "irm https://claude.ai/install.ps1 | iex",
     posix: "curl -fsSL https://claude.ai/install.sh | bash",
@@ -98,6 +110,18 @@ export function resolveOnboardingProviderLoginCommand(
   platform: ExecutionEnvironmentPlatformOs,
 ): string {
   const instance = settings.providerInstances[provider.instanceId];
+
+  if (provider.driver === "antigravity") {
+    return "agy auth login";
+  }
+
+  if (provider.driver === "openCode") {
+    return "opencode auth login";
+  }
+
+  if (provider.driver === "pi") {
+    return "pi auth login";
+  }
 
   if (provider.driver === "claudeAgent") {
     const config = decodeClaudeSettings(instance?.config ?? {});

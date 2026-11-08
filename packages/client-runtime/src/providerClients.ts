@@ -29,6 +29,15 @@ export const openRouterIcon: ProviderIcon = {
 
 export const providerClients = makeProviderClientRegistry([
   {
+    driverKind: ProviderDriverKind.make("antigravity"),
+    label: "Antigravity",
+    modelFamilies: ["Gemini "],
+    acpRegistryAgentIds: ["antigravity-acp"],
+    settingsSchema: AntigravitySettings,
+  },
+  openCodeClient,
+  piClient,
+  {
     driverKind: ProviderDriverKind.make("codex"),
     label: "Codex",
     modelFamilies: ["GPT-", "GPT "],
@@ -45,17 +54,8 @@ export const providerClients = makeProviderClientRegistry([
   cursorClient,
   grokClient,
   fxClient,
-  openCodeClient,
-  {
-    driverKind: ProviderDriverKind.make("antigravity"),
-    label: "Antigravity",
-    modelFamilies: ["Gemini "],
-    acpRegistryAgentIds: ["antigravity-acp"],
-    settingsSchema: AntigravitySettings,
-  },
   kiroClient,
   museClient,
-  piClient,
   acpRegistryClient,
 ]);
 

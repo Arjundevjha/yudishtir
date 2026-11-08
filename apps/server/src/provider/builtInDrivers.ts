@@ -31,39 +31,39 @@ export type BuiltInDriversEnv =
   | MuseDriverEnv;
 
 export const BUILT_IN_DRIVERS: ReadonlyArray<AnyProviderDriver<BuiltInDriversEnv>> = [
+  AntigravityDriver,
+  OpenCodeDriver,
+  PiDriver,
   CodexDriver,
   ClaudeDriver,
   CursorDriver,
   GrokDriver,
   FxDriver,
-  OpenCodeDriver,
-  AntigravityDriver,
   KiroDriver,
-  PiDriver,
   MuseDriver,
   AcpRegistryDriver,
 ];
 
 export type BuiltInUsageReadersEnv =
+  | ProviderUsageReaderEnv<typeof AntigravityDriver>
+  | ProviderUsageReaderEnv<typeof OpenCodeDriver>
+  | ProviderUsageReaderEnv<typeof PiDriver>
   | ProviderUsageReaderEnv<typeof ClaudeDriver>
   | ProviderUsageReaderEnv<typeof CodexDriver>
   | ProviderUsageReaderEnv<typeof GrokDriver>
-  | ProviderUsageReaderEnv<typeof OpenCodeDriver>
-  | ProviderUsageReaderEnv<typeof AntigravityDriver>
   | ProviderUsageReaderEnv<typeof CursorDriver>
-  | ProviderUsageReaderEnv<typeof PiDriver>
   | ProviderUsageReaderEnv<typeof MuseDriver>;
 
 /** Order matters: aggregation keeps the first duplicate record. */
 export const BUILT_IN_USAGE_DRIVERS: ReadonlyArray<
   AnyProviderDriver<BuiltInDriversEnv, BuiltInUsageReadersEnv>
 > = [
-  ClaudeDriver,
-  CodexDriver,
-  GrokDriver,
-  PiDriver,
-  OpenCodeDriver,
-  MuseDriver,
   AntigravityDriver,
+  OpenCodeDriver,
+  PiDriver,
+  CodexDriver,
+  ClaudeDriver,
+  GrokDriver,
+  MuseDriver,
   CursorDriver,
 ];
