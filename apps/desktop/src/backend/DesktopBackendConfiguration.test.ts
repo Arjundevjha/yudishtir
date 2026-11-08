@@ -934,6 +934,39 @@ describe("DesktopBackendConfiguration", () => {
     }).pipe(Effect.scoped, Effect.provide(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer))),
   );
 
+  it.effect(
+    "configures self-contained NODE_PATH for packaged runtime without touching rootDir",
+    () =>
+      Effect.gen(function* () {
+        const configuration = yield* DesktopBackendConfiguration.DesktopBackendConfiguration;
+        const startConfig = yield* configuration.resolvePrimary;
+
+        const nodePath = startConfig.env.NODE_PATH ?? "";
+        assert.include(nodePath, "/Applications/Yudishtir.app/Contents/Resources/app/node_modules");
+        assert.notInclude(nodePath, "/repo/apps/server/node_modules");
+        assert.notInclude(nodePath, "/repo/node_modules");
+      }).pipe(
+        Effect.scoped,
+        Effect.provide(
+          layerBackendConfiguration().pipe(
+            Layer.provideMerge(layerServerExposure),
+            Layer.provideMerge(DesktopAppSettings.layerTest()),
+            Layer.provideMerge(DesktopWslServerTree.layerTest()),
+            Layer.provideMerge(DesktopWslEnvironment.layerTest()),
+            Layer.provideMerge(
+              layerEnvironment("/tmp/t3-nodepath-test", {
+                appPath: "/Applications/Yudishtir.app/Contents/Resources/app",
+                dirname: "/Applications/Yudishtir.app/Contents/Resources/app/dist-electron",
+                isPackaged: true,
+                resourcesPath: "/Applications/Yudishtir.app/Contents/Resources",
+              }),
+            ),
+            Layer.provide(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer)),
+          ),
+        ),
+      ),
+  );
+
   it("resolvePrimaryLabel is runSync-safe against the real WSL availability probe", async () => {
     // oxlint-disable-next-line t3code/no-manual-effect-runtime-in-tests -- This test intentionally replicates the sync IPC handler's runSync path to catch a regression to async-only resolution; it.effect would mask it.
     const runtime = ManagedRuntime.make(

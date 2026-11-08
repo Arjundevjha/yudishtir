@@ -536,6 +536,17 @@ const resolvePrimaryStartConfig = Effect.fn("desktop.backendConfiguration.resolv
         ELECTRON_RUN_AS_NODE: "1",
         T3CODE_DESKTOP_SHELL_DISCOVERY_PENDING: "1",
         T3CODE_CLI_PATH: Option.getOrUndefined(input.cliPath),
+        NODE_PATH: [
+          environment.isPackaged
+            ? environment.path.join(environment.appRoot, "node_modules")
+            : environment.path.join(environment.rootDir, "apps", "server", "node_modules"),
+          environment.isPackaged
+            ? environment.path.join(environment.appRoot, "apps", "server", "node_modules")
+            : environment.path.join(environment.rootDir, "node_modules"),
+          process.env.NODE_PATH,
+        ]
+          .filter(Boolean)
+          .join(environment.platform === "win32" ? ";" : ":"),
       },
       extendEnv: true,
       bootstrap,
