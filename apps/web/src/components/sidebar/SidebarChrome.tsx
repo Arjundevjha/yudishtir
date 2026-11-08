@@ -164,7 +164,7 @@ function HistoryNavigationButton({
 function SidebarBrand({ onBackdrop }: { onBackdrop: boolean }) {
   return (
     <Link
-      aria-label="T3 Code home"
+      aria-label="Yudishtir home"
       className={cn(
         "relative z-10 ml-[var(--workspace-titlebar-content-left)] hidden h-7 w-fit min-w-0 shrink-0 items-center overflow-hidden rounded-md outline-hidden ring-ring focus-visible:ring-2 focus-visible:ring-inset md:flex",
         onBackdrop ? "text-white" : "text-foreground",
@@ -178,7 +178,28 @@ function SidebarBrand({ onBackdrop }: { onBackdrop: boolean }) {
 
 function SidebarBrandMark({ onBackdrop }: { onBackdrop: boolean }) {
   return (
-    <span className="inline-flex min-w-0 items-baseline gap-1 text-sm font-bold tracking-tight">
+    <span className="inline-flex min-w-0 items-center gap-1.5 text-sm font-bold tracking-tight">
+      <svg
+        className="h-4 w-4 shrink-0 text-primary animate-spin"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <circle cx="12" cy="12" r="3" />
+        <line x1="12" y1="2" x2="12" y2="9" />
+        <line x1="12" y1="15" x2="12" y2="22" />
+        <line x1="2" y1="12" x2="9" y2="12" />
+        <line x1="15" y1="12" x2="22" y2="12" />
+        <line x1="4.93" y1="4.93" x2="9.88" y2="9.88" />
+        <line x1="14.12" y1="14.12" x2="19.07" y2="19.07" />
+        <line x1="4.93" y1="19.07" x2="9.88" y2="14.12" />
+        <line x1="14.12" y1="9.88" x2="19.07" y2="4.93" />
+      </svg>
       <span className="text-primary font-black uppercase tracking-wider">Yudishtir</span>
       <span
         className={cn(

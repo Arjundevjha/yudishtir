@@ -13,11 +13,13 @@ const repoRoot = NodePath.resolve(desktopDir, "..", "..");
 const devBundleIdSuffix = NodePath.basename(repoRoot)
   .toLowerCase()
   .replaceAll(/[^a-z0-9]+/g, "");
-const APP_DISPLAY_NAME = isDevelopment ? "T3 Code (Dev)" : "T3 Code (Beta)";
+const APP_DISPLAY_NAME = isDevelopment ? "Yudishtir (Dev)" : "Yudishtir";
 const APP_BUNDLE_ID = isDevelopment
-  ? `com.t3tools.t3code.dev.${devBundleIdSuffix || "local"}`
-  : "com.t3tools.t3code";
-const APP_PROTOCOL_SCHEMES = isDevelopment ? ["t3code-dev"] : ["t3code"];
+  ? `com.yudishtir.desktop.dev.${devBundleIdSuffix || "local"}`
+  : "com.yudishtir.desktop";
+const APP_PROTOCOL_SCHEMES = isDevelopment
+  ? ["yudishtir-dev", "t3code-dev"]
+  : ["yudishtir", "t3code"];
 const LAUNCHER_VERSION = 20;
 const developmentMacIconPngPath = NodePath.join(
   repoRoot,
@@ -107,10 +109,14 @@ function shellSingleQuote(value) {
 }
 
 export function makeDevelopmentEnvironmentScript(environment) {
+  const home = process.env.HOME || "/Users/abc";
+  const defaultPath = `${home}/.local/bin:${home}/.opencode/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin`;
   const envEntries = [
+    ["PATH", environment.PATH || defaultPath],
     ["VITE_DEV_SERVER_URL", environment.VITE_DEV_SERVER_URL],
     ["T3CODE_PORT", environment.T3CODE_PORT],
-    ["T3CODE_HOME", environment.T3CODE_HOME],
+    ["T3CODE_HOME", environment.T3CODE_HOME || `${home}/.yudishtir`],
+    ["YUDISHTIR_HOME", environment.YUDISHTIR_HOME || `${home}/.yudishtir`],
     ["T3CODE_COMMIT_HASH", environment.T3CODE_COMMIT_HASH],
     ["T3CODE_OTLP_TRACES_URL", environment.T3CODE_OTLP_TRACES_URL],
     ["T3CODE_OTLP_EXPORT_INTERVAL_MS", environment.T3CODE_OTLP_EXPORT_INTERVAL_MS],
@@ -268,8 +274,8 @@ function resolveMacBundleInfoPlistStrings(executableName) {
     CFBundleExecutable: executableName,
     CFBundleIconFile: "icon.icns",
     NSScreenCaptureUsageDescription:
-      "T3 Code captures the active window when you use the snapshot shortcut.",
-    NSDocumentsFolderUsageDescription: "T3 Code reads project files you open in the desktop app.",
+      "Yudishtir captures the active window when you use the snapshot shortcut.",
+    NSDocumentsFolderUsageDescription: "Yudishtir reads project files you open in the desktop app.",
   };
 }
 
@@ -347,9 +353,7 @@ function buildMacLauncher(electronBinaryPath) {
   const targetAppBundlePath = NodePath.join(runtimeDir, `${APP_DISPLAY_NAME}.app`);
   const developmentPaths = resolveMacLauncherPaths(targetAppBundlePath);
   const runtimeElectronBinaryPath = developmentPaths.runtimeElectronBinaryPath;
-  const launcherBinaryPath = isDevelopment
-    ? developmentPaths.launcherBinaryPath
-    : runtimeElectronBinaryPath;
+  const launcherBinaryPath = runtimeElectronBinaryPath;
   const iconPath = ensureMacIconIcns(runtimeDir);
   const metadataPath = NodePath.join(runtimeDir, "metadata.json");
 
@@ -366,18 +370,11 @@ function buildMacLauncher(electronBinaryPath) {
 
   const currentMetadata = readJson(metadataPath);
   if (
-    NodeFS.existsSync(launcherBinaryPath) &&
-    (!isDevelopment || NodeFS.existsSync(runtimeElectronBinaryPath)) &&
+    NodeFS.existsSync(runtimeElectronBinaryPath) &&
     currentMetadata &&
     JSON.stringify(currentMetadata) === JSON.stringify(expectedMetadata)
   ) {
-    if (isDevelopment) {
-      // Protocol activations bypass the dev runner, so refresh the fallback environment on every launch.
-      writeDevelopmentEnvironmentScript();
-      if (writeDevelopmentLauncherScript(launcherBinaryPath, runtimeElectronBinaryPath)) {
-        signMacLauncherBundle(targetAppBundlePath);
-      }
-    }
+    writeDevelopmentEnvironmentScript();
     registerMacLauncherBundle(targetAppBundlePath);
     return launcherBinaryPath;
   }
@@ -388,17 +385,28 @@ function buildMacLauncher(electronBinaryPath) {
     recursive: true,
     verbatimSymlinks: true,
   });
-  patchMainBundleInfoPlist(
-    targetAppBundlePath,
-    iconPath,
-    isDevelopment ? developmentPaths.launcherExecutableName : "Electron",
-  );
+  patchMainBundleInfoPlist(targetAppBundlePath, iconPath, "Electron");
   patchHelperBundleInfoPlists(targetAppBundlePath);
-  if (isDevelopment) {
-    // Electron.app's executable name keeps default-app mode active without making app.isPackaged true.
-    writeDevelopmentEnvironmentScript();
-    writeDevelopmentLauncherScript(launcherBinaryPath, runtimeElectronBinaryPath);
+
+  const appResourceDir = NodePath.join(targetAppBundlePath, "Contents", "Resources", "app");
+  if (!NodeFS.existsSync(appResourceDir)) {
+    try {
+      NodeFS.symlinkSync(desktopDir, appResourceDir);
+    } catch {
+      // ignore
+    }
   }
+
+  const applicationsAppPath = "/Applications/Yudishtir.app";
+  try {
+    if (!NodeFS.existsSync(applicationsAppPath)) {
+      NodeFS.symlinkSync(targetAppBundlePath, applicationsAppPath);
+    }
+  } catch {
+    // ignore
+  }
+
+  writeDevelopmentEnvironmentScript();
   signMacLauncherBundle(targetAppBundlePath);
   NodeFS.writeFileSync(metadataPath, `${JSON.stringify(expectedMetadata, null, 2)}\n`);
   registerMacLauncherBundle(targetAppBundlePath);
@@ -443,9 +451,12 @@ function resolveElectronPath() {
 
 export function resolveElectronLaunchCommand(args = []) {
   const electronPath = resolveElectronPath();
+  const cleanArgs = electronPath.endsWith("Launcher")
+    ? args.filter((arg) => arg !== "dist-electron/main.cjs")
+    : args;
   return {
     electronPath,
-    args: [...resolveLinuxSandboxArgs(electronPath), ...args],
+    args: [...resolveLinuxSandboxArgs(electronPath), ...cleanArgs],
   };
 }
 
