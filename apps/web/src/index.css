@@ -1127,7 +1127,7 @@ html[data-mobile-composer-route-transition="true"]::view-transition-old(t3-mobil
   --card-foreground: var(--color-zinc-900);
   --popover: var(--color-white);
   --popover-foreground: var(--color-zinc-900);
-  --primary: oklch(0.488 0.217 264);
+  --primary: oklch(0.62 0.17 68);
   --primary-foreground: var(--color-white);
   --secondary: var(--color-zinc-50);
   --secondary-foreground: var(--color-zinc-800);
@@ -1196,7 +1196,8 @@ html[data-mobile-composer-route-transition="true"]::view-transition-old(t3-mobil
     --card-foreground: var(--color-neutral-100);
     --popover: color-mix(in srgb, var(--color-neutral-950) 97%, var(--color-white));
     --popover-foreground: var(--color-neutral-100);
-    --primary: oklch(0.571 0.21 264);
+    --primary: oklch(0.76 0.165 72);
+    --primary-foreground: #000000;
     --secondary: --alpha(var(--color-white) / 3%);
     --secondary-foreground: var(--color-neutral-100);
     --muted: --alpha(var(--color-white) / 3%);
@@ -1216,15 +1217,15 @@ html[data-mobile-composer-route-transition="true"]::view-transition-old(t3-mobil
     --success-foreground: var(--color-emerald-400);
     --warning-foreground: var(--color-amber-400);
     --warning-surface: color-mix(in srgb, var(--warning) 16%, transparent);
-    --update-foreground: var(--color-blue-400);
+    --update-foreground: var(--primary);
     --sidebar: var(--card);
     --sidebar-control-surface: var(--muted);
     --sidebar-row-hover: var(--accent);
     --sidebar-row-active: var(--accent);
     --sidebar-row-selected: var(--muted);
     --sidebar-stage-fade: var(--card);
-    --terminal-cursor: rgb(180 203 255);
-    --terminal-selection-background: rgb(180 203 255 / 25%);
+    --terminal-cursor: rgb(253 224 71);
+    --terminal-selection-background: rgb(245 158 11 / 25%);
   }
 }
 
