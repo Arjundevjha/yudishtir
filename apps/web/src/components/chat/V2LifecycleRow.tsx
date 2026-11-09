@@ -59,6 +59,8 @@ import {
 import { formatShortTimestamp } from "../../timestampFormat";
 import { getTriggerDisplayModelName } from "./providerIconUtils";
 import { ProviderInstanceIcon, providerTextColor } from "./ProviderInstanceIcon";
+import { FleetRoleBadge, FLEET_ROLE_CONFIG } from "./FleetRoleBadge";
+import type { FleetTeamRole } from "@t3tools/contracts";
 import { cn } from "~/lib/utils";
 import { TimelineSystemDivider } from "./TimelineSystemDivider";
 import { subagentResumedSince } from "./V2LifecycleRow.logic";
@@ -694,6 +696,14 @@ function HandoffEndpoint(props: {
   const labelColor = providerTextColor(
     entry?.driverKind ?? ProviderDriverKind.make(props.instanceId),
   );
+  const fleetRole: FleetTeamRole | undefined =
+    props.instanceId === "antigravity"
+      ? "architect"
+      : props.instanceId === "freebuff"
+        ? "lead_implementer"
+        : props.instanceId === "pi"
+          ? "intern"
+          : undefined;
   return (
     <Tooltip>
       <TooltipTrigger
@@ -708,7 +718,8 @@ function HandoffEndpoint(props: {
               accentColor={entry?.accentColor}
               acpRegistryAgentId={entry?.acpRegistryAgentId}
               acpRegistryIconUrl={entry?.acpRegistryIconUrl}
-              showBadge={showBadge}
+              fleetRole={fleetRole}
+              showBadge={showBadge || fleetRole !== undefined}
               size="compact"
               iconClassName={cn(showBadge && "opacity-60")}
               indicatorBackground="var(--background)"
@@ -719,11 +730,13 @@ function HandoffEndpoint(props: {
             >
               {label}
             </span>
+            {fleetRole ? <FleetRoleBadge role={fleetRole} compact /> : null}
           </span>
         }
       />
       <TooltipPopup>
         {entry?.displayName ?? props.instanceId} · {label}
+        {fleetRole ? ` · ${FLEET_ROLE_CONFIG[fleetRole].title}` : null}
       </TooltipPopup>
     </Tooltip>
   );

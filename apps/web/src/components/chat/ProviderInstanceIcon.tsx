@@ -6,7 +6,7 @@ import {
   providerInstanceInitials,
 } from "@t3tools/client-runtime/state/provider-instance-display";
 
-import { ProviderDriverKind } from "@t3tools/contracts";
+import { type FleetTeamRole, ProviderDriverKind } from "@t3tools/contracts";
 import { AntigravityIcon, ClaudeAI, Icon, OpenAI } from "../Icons";
 
 import { cn } from "~/lib/utils";
@@ -63,6 +63,7 @@ export const ProviderInstanceIcon = memo(function ProviderInstanceIcon(props: {
   accentColor?: string | undefined;
   acpRegistryAgentId?: string | undefined;
   acpRegistryIconUrl?: string | undefined;
+  fleetRole?: FleetTeamRole | undefined;
   showBadge?: boolean;
   badgeContent?: "initials" | "none";
   size?: "default" | "compact";
@@ -132,7 +133,17 @@ export const ProviderInstanceIcon = memo(function ProviderInstanceIcon(props: {
           style={{ borderColor: indicatorBackground }}
           aria-hidden
         >
-          {badgeContent === "initials" ? providerInstanceInitials(props.displayName) : null}
+          {props.fleetRole === "architect"
+            ? "👑"
+            : props.fleetRole === "lead_implementer"
+              ? "🛠️"
+              : props.fleetRole === "intern"
+                ? "☕"
+                : props.fleetRole === "security_auditor"
+                  ? "🛡️"
+                  : badgeContent === "initials"
+                    ? providerInstanceInitials(props.displayName)
+                    : null}
         </span>
       ) : null}
     </span>
