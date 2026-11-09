@@ -105,8 +105,8 @@ export const make = Effect.gen(function* () {
       yield* electronApp.setAppUserModelId(environment.appUserModelId);
     }
 
-    // Packaged bundles carry their icon in Info.plist; setting it again overwrites the user's custom icon.
-    if (environment.platform === "darwin" && !environment.isPackaged) {
+    // Ensure the Dock icon is always explicitly set to the branded Sovereign Crest on macOS.
+    if (environment.platform === "darwin") {
       const iconPaths = yield* assets.iconPaths;
       yield* Option.match(iconPaths.png, {
         onNone: () => Effect.void,
