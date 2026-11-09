@@ -178,29 +178,52 @@ function SidebarBrand({ onBackdrop }: { onBackdrop: boolean }) {
 
 function SidebarBrandMark({ onBackdrop: _onBackdrop }: { onBackdrop: boolean }) {
   return (
-    <span className="inline-flex min-w-0 items-center gap-1.5 text-sm font-bold tracking-tight">
+    <span className="inline-flex min-w-0 items-center gap-2 text-sm font-bold tracking-tight">
       <svg
-        className="h-4 w-4 shrink-0 text-primary animate-spin"
-        viewBox="0 0 24 24"
+        className="h-4.5 w-4.5 shrink-0 text-primary"
+        viewBox="0 0 32 32"
         fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
       >
-        <circle cx="12" cy="12" r="10" />
-        <circle cx="12" cy="12" r="3" />
-        <line x1="12" y1="2" x2="12" y2="9" />
-        <line x1="12" y1="15" x2="12" y2="22" />
-        <line x1="2" y1="12" x2="9" y2="12" />
-        <line x1="15" y1="12" x2="22" y2="12" />
-        <line x1="4.93" y1="4.93" x2="9.88" y2="9.88" />
-        <line x1="14.12" y1="14.12" x2="19.07" y2="19.07" />
-        <line x1="4.93" y1="19.07" x2="9.88" y2="14.12" />
-        <line x1="14.12" y1="9.88" x2="19.07" y2="4.93" />
+        {/* Central Spear of Truth (Yudhi-Sthira Lance) */}
+        <path d="M16 2L18.8 8.5L17.2 14L16 16.5L14.8 14L13.2 8.5L16 2Z" fill="currentColor" />
+        <line
+          x1="16"
+          y1="2.5"
+          x2="16"
+          y2="16"
+          stroke="var(--background)"
+          strokeWidth="0.8"
+          strokeLinecap="round"
+        />
+        {/* Left Crown Wing forming Sovereign 'Y' */}
+        <path
+          d="M14.5 24L7 9.5L10 12.5L11.5 10L13.5 16L14.5 21L14.5 24Z"
+          fill="currentColor"
+          className="opacity-90"
+        />
+        {/* Right Crown Wing forming Sovereign 'Y' */}
+        <path
+          d="M17.5 24L25 9.5L22 12.5L20.5 10L18.5 16L17.5 21L17.5 24Z"
+          fill="currentColor"
+          className="opacity-90"
+        />
+        {/* Satya Diamond of Truth */}
+        <polygon
+          points="16,14.5 19,18 16,21.5 13,18"
+          fill="var(--background)"
+          stroke="currentColor"
+          strokeWidth="0.8"
+        />
+        <polygon points="16,15.5 17.8,18 16,20.5 14.2,18" fill="currentColor" />
+        {/* Steadfast Base Pedestal */}
+        <path
+          d="M16 27.5L13.5 23.5L14.5 22L16 23.5L17.5 22L18.5 23.5L16 27.5Z"
+          fill="currentColor"
+        />
       </svg>
-      <span className="text-primary font-black uppercase tracking-wider">Yudishtir</span>
+      <span className="text-primary font-black uppercase tracking-wider text-xs">Yudishtir</span>
     </span>
   );
 }

@@ -64,6 +64,7 @@ import {
 } from "./ProviderSettingsForm";
 import { ProviderModelsSection } from "./ProviderModelsSection";
 import { ProviderInstanceIcon } from "../chat/ProviderInstanceIcon";
+import { FleetRoleBadge, resolveFleetRoleForProvider } from "../chat/FleetRoleBadge";
 import { ProviderAccentColorPicker } from "./ProviderAccentColorPicker";
 import { RedactedSensitiveText } from "./RedactedSensitiveText";
 import { SettingResetButton, SettingsRow, SettingsSection } from "./settingsLayout";
@@ -800,6 +801,10 @@ export function ProviderInstanceCard({
   const driverKind: ProviderDriverKind | null = isProviderDriverKind(instance.driver)
     ? instance.driver
     : null;
+  const fleetRole = resolveFleetRoleForProvider({
+    instanceId,
+    driverKind: driverKind ?? instance.driver,
+  });
   const storedCustomModels =
     instance.config !== null && typeof instance.config === "object"
       ? (instance.config as Record<string, unknown>).customModels
@@ -1096,6 +1101,7 @@ export function ProviderInstanceCard({
           <span className="min-w-0 flex-1">
             <span className="flex min-w-0 items-center gap-2">
               <span className="truncate text-sm font-medium text-foreground">{displayName}</span>
+              {fleetRole ? <FleetRoleBadge role={fleetRole} compact className="shrink-0" /> : null}
               {versionLabel ? (
                 <code className="max-w-24 shrink-0 truncate text-xs text-muted-foreground">
                   {versionLabel}
@@ -1157,6 +1163,7 @@ export function ProviderInstanceCard({
 
   const editorHeaderAction = (
     <div className="flex shrink-0 items-center gap-1.5">
+      {fleetRole ? <FleetRoleBadge role={fleetRole} compact className="shrink-0" /> : null}
       {driverOption?.badgeLabel ? (
         <Badge variant="warning" size="sm" className="shrink-0">
           {driverOption.badgeLabel}

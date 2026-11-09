@@ -10,6 +10,7 @@ import { Badge } from "../ui/badge";
 import { Popover, PopoverPopup, PopoverTrigger } from "../ui/popover";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
 import { cn } from "~/lib/utils";
+import { FleetRoleBadge, resolveFleetRoleForProvider } from "./FleetRoleBadge";
 import { ModelPickerContent, resolveModelPickerSelectedModel } from "./ModelPickerContent";
 import { ChatGptSharingControl } from "./ChatGptSharingControl";
 import { ProviderInstanceIcon } from "./ProviderInstanceIcon";
@@ -146,6 +147,11 @@ export const ProviderModelPicker = memo(function ProviderModelPicker(props: {
     : triggerTitle;
   const showInstanceBadge =
     activeEntry !== null && shouldShowInstanceBadge(activeEntry, props.instanceEntries);
+  const activeFleetRole = resolveFleetRoleForProvider({
+    instanceId: activeEntry?.instanceId,
+    driverKind: activeEntry?.driverKind,
+    model: props.model,
+  });
 
   const setIsMenuOpen = (open: boolean) => {
     props.onOpenChange?.(open);
@@ -396,6 +402,9 @@ export const ProviderModelPicker = memo(function ProviderModelPicker(props: {
             </Tooltip>
           )}
           {props.triggerSuffix}
+          {activeFleetRole && !selectedEntries && props.triggerLabel === undefined ? (
+            <FleetRoleBadge role={activeFleetRole} compact className="shrink-0" />
+          ) : null}
           {selectedModel?.isUnavailable && !selectedEntries && props.triggerLabel === undefined ? (
             <Badge variant="outline" size="sm">
               Unavailable

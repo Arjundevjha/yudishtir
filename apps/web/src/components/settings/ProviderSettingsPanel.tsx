@@ -95,6 +95,7 @@ import { useManagedPolicy } from "~/state/managedPolicy";
 import { ExpandableText } from "./ExpandableText";
 import { IntervalSecondsField } from "./IntervalSecondsField";
 import { ProviderInstanceCard } from "./ProviderInstanceCard";
+import { FleetRosterBanner } from "../chat/FleetRoleBadge";
 import { useSecretSources } from "./SecretSourceInput";
 import { UsageProviderSettings } from "./UsageProviderSettings";
 import { ProviderSetupSection, readAntigravityAuthMethod } from "./ProviderSetupSection";
@@ -972,6 +973,7 @@ export function EnvironmentProviderSettings({
 
   return (
     <>
+      <FleetRosterBanner />
       <SettingsSection
         {...searchableSetting("providers")}
         variant="plain"
