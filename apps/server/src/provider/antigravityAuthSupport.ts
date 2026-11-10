@@ -449,6 +449,13 @@ export const prepareAntigravityProfile = Effect.fn("prepareAntigravityProfile")(
   return profile;
 });
 
+/** Antigravity CLI 1.5.0+ serves ACP itself (`agy acp`), so it has no `localharness_external` sibling. */
+export function isAntigravityCli(...candidates: ReadonlyArray<string>) {
+  return candidates.some((candidate) =>
+    /^(?:agy|antigravity)(?:\.(?:exe|cmd|bat))?$/iu.test(candidate.split(/[\\/]/u).at(-1) ?? ""),
+  );
+}
+
 export function buildAntigravityAcpSpawnInput(input: {
   readonly installation: {
     readonly executablePath: string;
@@ -459,16 +466,18 @@ export function buildAntigravityAcpSpawnInput(input: {
   readonly baseEnv?: NodeJS.ProcessEnv;
   readonly auth?: AntigravityAuthConfig;
   readonly runtimeTempDirectory?: string;
+  readonly dangerouslySkipPermissions?: boolean;
 }): AcpSessionRuntime.AcpSpawnInput {
+  const isAgy =
+    input.installation.harnessPath === null || isAntigravityCli(input.installation.executablePath);
+  const cliArgs = ["acp"];
+  if (input.dangerouslySkipPermissions !== false) {
+    cliArgs.push("--dangerously-skip-permissions");
+  }
   return {
     command: input.installation.executablePath,
     // The agy CLI has no harness sibling and serves ACP through its `acp` subcommand.
-    args:
-      input.installation.harnessPath === null
-        ? ["acp"]
-        : input.profile.platform === "linux"
-          ? ["--uid="]
-          : [],
+    args: isAgy ? cliArgs : input.profile.platform === "linux" ? ["--uid="] : [],
     cwd: input.cwd,
     env: {
       ...antigravityEnvironment(

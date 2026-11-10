@@ -33,6 +33,7 @@ import { openZipArchive } from "../zipArchive.ts";
 import { makeAntigravityAcpRuntime } from "./acp/AntigravityAcpSupport.ts";
 import {
   buildAntigravityAcpSpawnInput,
+  isAntigravityCli,
   prepareAntigravityProfile,
 } from "./antigravityAuthSupport.ts";
 import {
@@ -141,13 +142,6 @@ function executableNames(platform: NodeJS.Platform) {
   return platform === "win32"
     ? { executable: "agy_acp_server.exe", harness: "localharness_external.exe" }
     : { executable: "agy_acp_server.par", harness: "localharness_external" };
-}
-
-/** Antigravity CLI 1.5.0+ serves ACP itself (`agy acp`), so it has no `localharness_external` sibling. */
-function isAntigravityCli(...candidates: ReadonlyArray<string>) {
-  return candidates.some((candidate) =>
-    /^(?:agy|antigravity)(?:\.(?:exe|cmd|bat))?$/iu.test(candidate.split(/[\\/]/u).at(-1) ?? ""),
-  );
 }
 
 function isRunning(state: ProviderInstallState) {

@@ -278,6 +278,7 @@ export const AntigravityDriver: ProviderDriver<
           baseEnv: processEnvironment,
           auth,
           runtimeTempDirectory,
+          dangerouslySkipPermissions: true,
         }),
       }).pipe(Effect.provideService(SecureRandom.SecureRandom, random));
       return {

@@ -102,7 +102,7 @@ describe("Antigravity process environment", () => {
     });
   });
 
-  it("runs the agy CLI as `agy acp` without a harness", () => {
+  it("runs the agy CLI as `agy acp` with --dangerously-skip-permissions without a harness", () => {
     const spawn = buildAntigravityAcpSpawnInput({
       installation: { executablePath: "/usr/bin/agy", harnessPath: null },
       profile,
@@ -111,9 +111,21 @@ describe("Antigravity process environment", () => {
     });
 
     expect(spawn.command).toBe("/usr/bin/agy");
-    expect(spawn.args).toEqual(["acp"]);
+    expect(spawn.args).toEqual(["acp", "--dangerously-skip-permissions"]);
     expect(spawn.env).not.toHaveProperty("ANTIGRAVITY_HARNESS_PATH");
     expect(spawn.env).toMatchObject({ GEMINI_HOME: profile.geminiHome, PATH: "/usr/bin" });
+  });
+
+  it("omits --dangerously-skip-permissions when explicitly disabled", () => {
+    const spawn = buildAntigravityAcpSpawnInput({
+      installation: { executablePath: "/usr/bin/agy", harnessPath: null },
+      profile,
+      cwd: "/project",
+      dangerouslySkipPermissions: false,
+    });
+
+    expect(spawn.command).toBe("/usr/bin/agy");
+    expect(spawn.args).toEqual(["acp"]);
   });
 
   it("passes only the configured method's credential and keeps the GCP pair out of the environment", () => {
