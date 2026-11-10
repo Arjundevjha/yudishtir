@@ -162,12 +162,15 @@ export const makeAntigravityAcpRuntime = Effect.fn("makeAntigravityAcpRuntime")(
   return yield* Effect.service(AcpSessionRuntime.AcpSessionRuntime).pipe(Effect.provide(context));
 });
 
+/**
+ * Runtime 1.5+ advertises `default | accept-edits | plan`; it has no unattended mode, so
+ * full access maps to its most permissive mode and remaining prompts are auto-approved by policy.
+ */
 export function antigravityPermissionMode(runtimeMode: RuntimeMode): string {
   switch (runtimeMode) {
     case "full-access":
-      return "yolo";
     case "auto-accept-edits":
-      return "auto_edit";
+      return "accept-edits";
     case "auto":
     case "approval-required":
       return "default";
@@ -177,8 +180,10 @@ export function antigravityPermissionMode(runtimeMode: RuntimeMode): string {
 /** The runtime mode an Antigravity session mode grants; the inverse of `antigravityPermissionMode`. */
 export function antigravityRuntimeModeForSessionMode(modeId: string): RuntimeMode | undefined {
   switch (modeId) {
+    // Pre-1.5 runtimes used `yolo` / `auto_edit`.
     case "yolo":
       return "full-access";
+    case "accept-edits":
     case "auto_edit":
       return "auto-accept-edits";
     case "default":

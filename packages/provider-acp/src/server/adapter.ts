@@ -7387,7 +7387,15 @@ export const makeAcpAdapterV2 = Effect.fn("makeAcpAdapterV2")(function* (
             yield* runtime.setConfigOption(selection.id, selection.value);
           }
           const policyMode = flavor.sessionModeForPolicy?.(runtimePolicy);
-          if (policyMode !== undefined) {
+          const policyModeState = yield* runtime.getModeState;
+          // Agent versions rename modes; setting an unadvertised one fails the whole session.
+          if (
+            policyMode !== undefined &&
+            policyModeState?.currentModeId !== policyMode &&
+            (policyModeState === undefined ||
+              policyModeState === null ||
+              policyModeState.availableModes.some((mode) => mode.id === policyMode))
+          ) {
             yield* runtime.setMode(policyMode);
           }
           const modeState = yield* runtime.getModeState;

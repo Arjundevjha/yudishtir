@@ -17,6 +17,8 @@ import { resolveAttachmentPath } from "../../attachmentStore.ts";
 import {
   applyAntigravityAcpModelSelection,
   antigravityClientInfo,
+  antigravityPermissionMode,
+  antigravityRuntimeModeForSessionMode,
   antigravitySessionMeta,
   buildAntigravityPrompt,
   isQualifiedAntigravityRelease,
@@ -714,4 +716,23 @@ it.layer(NodeServices.layer)("buildAntigravityPrompt", (it) => {
       });
     }),
   );
+});
+
+describe("Antigravity permission modes", () => {
+  // Runtime 1.5 rejects `yolo` ("expected one of default, accept-edits, plan") and fails the session.
+  const runtime15Modes = ["default", "accept-edits", "plan"];
+
+  it.each(["full-access", "auto-accept-edits", "auto", "approval-required"] as const)(
+    "maps %s to a mode runtime 1.5 advertises",
+    (runtimeMode) => {
+      expect(runtime15Modes).toContain(antigravityPermissionMode(runtimeMode));
+    },
+  );
+
+  it("reads both current and pre-1.5 session modes", () => {
+    expect(antigravityRuntimeModeForSessionMode("accept-edits")).toBe("auto-accept-edits");
+    expect(antigravityRuntimeModeForSessionMode("auto_edit")).toBe("auto-accept-edits");
+    expect(antigravityRuntimeModeForSessionMode("yolo")).toBe("full-access");
+    expect(antigravityRuntimeModeForSessionMode("default")).toBe("approval-required");
+  });
 });
